@@ -11,28 +11,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1) Check out the code
       - uses: actions/checkout@v3
 
+      # 2) Set up Python (3.9 as an example)
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.9"
 
-      - name: Install System Dependencies
+      # 3) Install dependencies
+      - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libomp-dev python3-tk
-
-      - name: Install Python Dependencies
-        run: |
+          # If you need OpenMP on Linux (optional), install libomp-dev:
+          # sudo apt-get install -y libomp-dev
           pip install --upgrade pip
           pip install pybind11 pytest
 
+      # 4) Build the Pybind11 extension in-place
       - name: Build Extension
-        run: python setup.py build_ext --inplace
+        run: |
+          python src/setup.py build_ext --inplace
 
-      - name: Install Package
-        run: pip install .
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
 
+      # 5) Run Tests with Pytest
       - name: Run Tests
-        run: pytest tests/ --maxfail=1 --disable-warnings
+        run: |
+          pytest tests/ --maxfail=1 --disable-warnings
