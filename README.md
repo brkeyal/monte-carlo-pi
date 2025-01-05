@@ -1,130 +1,120 @@
-# monte-carlo-pi
-A Monte Carlo Pi Estimation project, featuring a C++ multihreaded service (via Pybind11) and a Python (Tkinter) GUI for real-time visualization and performance monitoring
-
-```markdown
 # Monte Carlo Pi Estimation (C++ + Python)
 
-This project demonstrates a Monte Carlo approach to estimating \\(\pi\\) by randomly sampling points in a 2D plane and checking how many fall inside a unit circle. The core logic is written in **C++** (exposed to Python via **Pybind11**), and a **Python Tkinter** GUI provides real-time visualization and performance monitoring.
+This project demonstrates a Monte Carlo approach to estimating π by randomly sampling points in a 2D plane and checking how many fall inside a unit circle. The core logic is written in C++ (exposed to Python via Pybind11), and a Python Tkinter GUI provides real-time visualization and performance monitoring.
 
 ## Features
 
-1. **C++ Implementation**
-   - Uses `std::thread` (or optionally OpenMP) for **multithreading**.  
-   - Returns a batch of \\((x, y, inside)\\) tuples to Python.  
-   - Thread-local random number generation for consistent parallel results.
+1. C++ Implementation
+   - Uses `std::thread` (or optionally OpenMP) for multithreading
+   - Returns a batch of (x, y, inside) tuples to Python
+   - Thread-local random number generation for consistent parallel results
 
-2. **Python Tkinter GUI**  
-   - **Batch size** and **thread count** can be set by the user.  
-   - **Real-time plotting** via `matplotlib`, showing inside/outside points.  
-   - **Performance KPIs**: time elapsed, memory usage (current & peak), convergence checks (\\(\pm 10^{-4}\\) threshold), and an aggregated score once convergence is reached.
+2. Python Tkinter GUI
+   - Batch size and thread count can be set by the user
+   - Real-time plotting via matplotlib, showing inside/outside points
+   - Performance KPIs: time elapsed, memory usage (current & peak), convergence checks (±10^-4 threshold), and an aggregated score once convergence is reached
 
-3. **Automated Tests**  
-   - **Pytest** tests to verify:
-     - C++ module calls and returned data.
-     - Python logic for setting and parsing batch size / thread count.
-     - (Optional) basic GUI tests.
+3. Automated Tests
+   - Pytest tests to verify:
+     - C++ module calls and returned data
+     - Python logic for setting and parsing batch size / thread count
+     - Optional GUI tests
 
-4. **Continuous Integration**  
-   - GitHub Actions workflow (`.github/workflows/ci.yml`) to:
-     - Build the Pybind11 extension in-place.
-     - Run tests automatically on commits and pull requests.
+4. Continuous Integration
+   - GitHub Actions workflow to:
+     - Build the Pybind11 extension in-place
+     - Run tests automatically on commits and pull requests
 
 ## Project Structure
-
 ```
-.
-├─ monte_carlo.cpp        # Main C++ file with Monte Carlo + threading logic
-├─ setup.py               # Pybind11 build script
-├─ main.py                # Python Tkinter GUI + logic
-├─ tests/
-│  ├─ test_monte_carlo.py # Example Pytest for C++ logic & Python integration
-│  └─ ...
-├─ requirements.txt       # (Optional) Python dependencies
-└─ .github/workflows/ci.yml # GitHub Actions workflow
+monte-carlo-pi/
+│
+├── src/
+│   ├── monte_carlo.cpp     # Main C++ file with Monte Carlo + threading logic
+│   └── setup.py           # Pybind11 build script
+│
+├── python/
+│   ├── main.py            # Python Tkinter GUI + logic
+│   └── utils/             # Helper functions and utilities
+│
+├── tests/
+│   ├── test_monte_carlo.py
+│   └── test_gui.py
+│
+├── requirements.txt       # Python dependencies
+├── README.md
+└── .github/
+    └── workflows/
+        └── ci.yml        # GitHub Actions workflow
 ```
 
 ## Getting Started
 
 ### 1. Clone the Repository
-
 ```bash
 git clone https://github.com/your-username/monte-carlo-pi.git
 cd monte-carlo-pi
 ```
-*(Or create your repo in PyCharm and push there—see below for details on using PyCharm.)*
 
 ### 2. Build the C++ Extension
-
 ```bash
 python setup.py build_ext --inplace
 ```
 
-This will compile the Pybind11 extension (`monte_carlo.*`).
-
 ### 3. Install Dependencies
-
-If you have a `requirements.txt`, run:
-
 ```bash
 pip install -r requirements.txt
 ```
 
-Otherwise, you’ll need at least:
-- **pybind11** (for building the extension)
-- **pytest** (for testing)
-- **matplotlib** (for plotting in the GUI)
-- **psutil** (for memory usage)
-- **tkinter** (usually included with Python on most OSes, or install `python3-tk` on Linux)
+Required packages:
+- pybind11 (C++ bindings)
+- pytest (testing)
+- matplotlib (plotting)
+- psutil (memory monitoring)
+- tkinter (GUI - usually included with Python)
 
 ### 4. Run the GUI
-
 ```bash
 python main.py
 ```
 
-A Tkinter window should appear, allowing you to:
-- **Start/Stop** the simulation.
-- Modify **Batch Size** (points per step).
-- Modify **Thread Count** (for multithreading).
-- See a **real-time** scatter plot of inside/outside points, along with metrics like **estimated \\(\pi\\)**, **time elapsed**, **memory usage**, **time-to-convergence**, etc.
+The GUI provides:
+- Start/Stop simulation controls
+- Batch Size adjustment
+- Thread Count selection
+- Real-time visualization
+- Performance metrics display
 
-### 5. Test the Project
-
+### 5. Run Tests
 ```bash
 pytest tests/
 ```
 
-This runs the unit tests (e.g., verifying the C++ module’s return values, checking Python logic, etc.).
+## Development with PyCharm
 
-## Using PyCharm
-
-1. **Open** the project in PyCharm.
-2. **Enable Git** (if not already): `VCS > Enable Version Control Integration`.
-3. **Commit** your changes locally.
-4. **Share** the project on GitHub: `VCS > Import into Version Control > Share Project on GitHub`.
-5. **Build & Test**:  
-   - Use PyCharm’s built-in terminal or “Run” configurations to run `python setup.py build_ext --inplace`.  
-   - Use PyCharm’s “Run” or “Debug” for `main.py`.  
-   - Use PyCharm’s “Python tests” run configuration for `pytest`.
-
-## Continuous Integration (GitHub Actions)
-
-A `.github/workflows/ci.yml` file is included to:
-- Set up Python
-- Install dependencies
-- Build the Pybind11 extension
-- Run `pytest`
-
-Whenever you push code or open a pull request, GitHub Actions will build and test your code automatically.
+1. Open project in PyCharm
+2. Enable Version Control: VCS > Enable Version Control Integration
+3. Build the extension: Run `python setup.py build_ext --inplace` in terminal
+4. Run the GUI: Execute `main.py`
+5. Run tests: Configure Python tests in PyCharm
 
 ## Contributing
 
-1. **Fork** the repo, make changes, and open a **Pull Request**.
-2. Submit **issues** for bugs or new feature ideas.
-3. We welcome improvements to parallelization, plotting, or advanced performance metrics.
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
-*(Include your chosen license here, e.g., MIT, BSD, or Apache 2.0.)*
+MIT License
 
-```
+## Acknowledgments
+
+- Contributors and maintainers
+- Pybind11 team for C++/Python bindings
+- Python and C++ communities
+
+---
+*Note: This project is under active development. Issues and pull requests are welcome.*
