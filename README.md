@@ -8,7 +8,7 @@ This project demonstrates a Monte Carlo approach to estimating \\(\pi\\) by rand
 
 ## Features
 
-1. **C++ Implementation**  
+1. **C++ Implementation**
    - Uses `std::thread` (or optionally OpenMP) for **multithreading**.  
    - Returns a batch of \\((x, y, inside)\\) tuples to Python.  
    - Thread-local random number generation for consistent parallel results.
