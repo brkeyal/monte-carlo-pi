@@ -40,7 +40,7 @@ class MonteCarloApp:
         # CONVERGENCE / SCORE
         # ---------------
         self.convergence_threshold = 1e-4
-        self.consecutive_needed = 5  # must meet threshold 5 consecutive times
+        self.consecutive_needed = 50  # must meet threshold consecutive times
         self.consecutive_hits = 0
         self.converged = False
         self.convergence_time = None
@@ -51,8 +51,8 @@ class MonteCarloApp:
         # We'll display two scores:
         # 1) Time-to-Convergence (once stable)
         # 2) Aggregated Score (based on more factors)
-        self.final_time_score = None
-        self.final_agg_score = None
+        # self.final_time_score = None
+        # self.final_agg_score = None
 
         # ---------------
         # SET UP FIGURE
@@ -158,8 +158,8 @@ class MonteCarloApp:
             self.consecutive_hits = 0
             self.peak_mem_usage_mb = 0.0
 
-            self.final_time_score = None
-            self.final_agg_score = None
+            # self.final_time_score = None
+            # self.final_agg_score = None
 
             self.start_time = time.time()
 
@@ -230,13 +230,6 @@ class MonteCarloApp:
         else:
             self.consecutive_hits = 0
 
-        # If we haven't converged yet, but meet the consecutive threshold, we declare convergence
-        if not self.converged and self.consecutive_hits >= self.consecutive_needed:
-            self.converged = True
-            self.convergence_time = time.time() - self.start_time
-            # We can compute a time-based score
-            self.final_time_score = self.convergence_time
-
         # Time Elapsed
         elapsed_time = time.time() - self.start_time
         self.label_time.config(text=f"Time Elapsed: {elapsed_time:.2f} s")
@@ -252,30 +245,35 @@ class MonteCarloApp:
             self.peak_mem_usage_mb = current_mem_usage_mb
         self.label_mem_peak.config(text=f"Peak Mem Usage: {self.peak_mem_usage_mb:.2f} MB")
 
-        # ---------- Scores ----------
-        # 1) Time-to-Convergence Score
-        if self.final_time_score is not None:
+        # If we haven't converged yet, but meet the consecutive threshold, we declare convergence
+        if not self.converged and self.consecutive_hits >= self.consecutive_needed:
+            self.converged = True
+            self.convergence_time = time.time() - self.start_time
+            # We can compute a time-based score
+            # self.final_time_score = self.convergence_time
+
+            # ---------- Scores ----------
+            # 1) Time-to-Convergence Score
             # Let's color it green if time < 10, otherwise red (arbitrary threshold)
-            color_time = "green" if self.final_time_score < 10 else "red"
+            color_time = "green" if self.convergence_time < 10 else "red"
             self.label_time_score.config(
-                text=f"Time-to-Convergence Score: {self.final_time_score:.2f} s",
+                text=f"Time-to-Convergence Score: {self.convergence_time:.2f} s",
                 fg=color_time
             )
-        else:
-            self.label_time_score.config(text="Time-to-Convergence Score: N/A", fg="black")
 
-        # 2) Aggregated Score
-        # Example formula: aggregated_score = time_to_convergence + (0.01 * peak_mem_usage)
-        # or anything else you'd like to factor in
-        if self.final_time_score is not None:
-            aggregated_score = self.final_time_score + 0.01 * self.peak_mem_usage_mb
+            # 2) Aggregated Score
+            # Example formula: aggregated_score = time_to_convergence + (0.01 * peak_mem_usage)
+            # or anything else you'd like to factor in
+            aggregated_score = self.convergence_time + 0.01 * self.peak_mem_usage_mb
             # Color logic, for example if aggregated_score < 10, green, else red
             color_agg = "green" if aggregated_score < 10 else "red"
             self.label_agg_score.config(
                 text=f"Aggregated Score: {aggregated_score:.2f}",
                 fg=color_agg
             )
-        else:
+
+        if self.convergence_time is None:
+            self.label_time_score.config(text="Time-to-Convergence Score: N/A", fg="black")
             self.label_agg_score.config(text="Aggregated Score: N/A", fg="black")
 
         # Redraw the canvas
