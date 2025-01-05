@@ -34,6 +34,9 @@ jobs:
         run: |
           python src/setup.py build_ext --inplace
 
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
+
       # 5) Run Tests with Pytest
       - name: Run Tests
         run: |
