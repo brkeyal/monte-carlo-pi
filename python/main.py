@@ -4,6 +4,7 @@ import math
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import utils
 
 import os
 import psutil
@@ -120,6 +121,10 @@ class MonteCarloApp:
         self.label_mem_peak = tk.Label(root, text="Peak Mem Usage: 0 MB")
         self.label_mem_peak.pack()
 
+        # Show efficiency metric (points_per_seconds)
+        self.label_points_per_seconds = tk.Label(root, text="Points per Second: 0")
+        self.label_points_per_seconds.pack()
+
         # Show time score (time-to-convergence) once stable
         self.label_time_score = tk.Label(root, text="Time-to-Convergence Score: N/A", fg="black")
         self.label_time_score.pack()
@@ -194,25 +199,24 @@ class MonteCarloApp:
                 self.total_points += 1
 
             # Before plotting
-            start_time = time.time()
+            plotting_start_time = time.time()
 
             # Update the UI (plots + KPIs)
             self.update_plot()
 
             # After plotting
-            end_time = time.time()
-            plot_duration = end_time - start_time
+            plotting_end_time = time.time()
+            plotting_duration = plotting_end_time - plotting_start_time
             # print(f"Plotting took {plot_duration:.4f} seconds")
 
-            if plot_duration > MAX_PLOT_DURATION:
-                print(f"Warning: Plotting took {plot_duration:.4f} seconds, which exceeds max threshold.")
+            if plotting_duration > MAX_PLOT_DURATION:
+                print(f"Warning: Plotting took {plotting_duration:.4f} seconds, which exceeds max threshold.")
                 # Optionally, raise exception
 
             # Optional short sleep if you want to limit CPU usage or UI updates
             # time.sleep(0.01)
 
     def draw_plot(self):
-        # Clear the old plot
         # Clear the old plot
         self.ax.clear()
         self.ax.set_xlim(-1, 1)
@@ -264,7 +268,7 @@ class MonteCarloApp:
 
         # Memory Usage (current)
         process = psutil.Process(os.getpid())
-        mem_info = process.memory_info()
+        mem_info = process.memory_info() # psutil.virtual_memory().used / (1024 * 1024)
         current_mem_usage_mb = mem_info.rss / (1024 * 1024)
         self.label_mem_current.config(text=f"Current Mem Usage: {current_mem_usage_mb:.2f} MB")
 
@@ -272,6 +276,13 @@ class MonteCarloApp:
         if current_mem_usage_mb > self.peak_mem_usage_mb:
             self.peak_mem_usage_mb = current_mem_usage_mb
         self.label_mem_peak.config(text=f"Peak Mem Usage: {self.peak_mem_usage_mb:.2f} MB")
+
+        # Update points per second
+        actual_elapsed = time.time() - self.start_time
+        # print(f"EYALBBBBTIME Elapsed time {actual_elapsed:.2f}")
+        points_per_second = self.total_points / actual_elapsed  # self.batch_size * self.num_threads
+        self.label_points_per_seconds.config(text=f"Points per second: {utils.format_number(points_per_second)}")
+        # print(f"EYALBBBBTIME points_per_second {utils.format_number(points_per_second)}")
 
         # If we haven't converged yet, but meet the consecutive threshold, we declare convergence
         if not self.converged and self.consecutive_hits >= self.consecutive_needed:
