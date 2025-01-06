@@ -15,6 +15,8 @@ import monte_carlo
 MAX_POINTS_TO_PLOT = 1000
 # MAX_PLOT_DURATION = 1/60  # ~0.0167 seconds
 MAX_PLOT_DURATION = 0.1 # seconds
+CONVERGENCE_THRESHOLD = 1e-3  # TODO: change back to -4
+CONSECUTIVE_NEEDED = 1000  # must meet threshold consecutive times # TODO: optimize
 
 # # Setup
 # plot_widget = pg.PlotWidget()
@@ -31,8 +33,10 @@ class MonteCarloApp:
         # USER CONTROLS
         # ---------------
         self.running = False
+        self.during_simulation = False
         self.batch_size = 1000      # default batch size
         self.num_threads = 2        # default number of threads
+        self.simulation_report = None
 
         # ---------------
         # SIM STATS
@@ -48,11 +52,11 @@ class MonteCarloApp:
         # ---------------
         # CONVERGENCE / SCORE
         # ---------------
-        self.convergence_threshold = 1e-4
-        self.consecutive_needed = 50  # must meet threshold consecutive times
         self.consecutive_hits = 0
         self.converged = False
         self.convergence_time = None
+        self.aggregated_score = None
+        self.points_per_second = None
 
         # We'll track peak memory usage
         self.peak_mem_usage_mb = 0.0
@@ -84,8 +88,12 @@ class MonteCarloApp:
         control_frame = tk.Frame(root)
         control_frame.pack(pady=5)
 
+        # Simulate Button
+        self.simulate_button = tk.Button(control_frame, text="Simulation", command=self.simulate)
+        self.simulate_button.pack(side=tk.BOTTOM, padx=5)
+
         # Start/Stop Button
-        self.button = tk.Button(control_frame, text="Start", command=self.toggle_simulation)
+        self.button = tk.Button(control_frame, text="Start", command=self.on_main_button_pressed)
         self.button.pack(side=tk.LEFT, padx=5)
 
         # Batch Size
@@ -133,15 +141,36 @@ class MonteCarloApp:
         self.label_agg_score = tk.Label(root, text="Aggregated Score: N/A", fg="black")
         self.label_agg_score.pack()
 
+    def on_main_button_pressed(self):
+        if self.running and self.during_simulation:
+            # Stopped button was pressed. stop simulation, if running
+            self.during_simulation = False
+
+        if not self.running:
+            # Start was pressed - remove simulation report, if exists
+            if self.simulation_report is not None:
+                self.simulation_report.destroy()
+                self.simulation_report = None  # Reset the reference
+
+        self.toggle_simulation()
+
     def toggle_simulation(self):
         if self.running:
+
             # Stopping
             self.running = False
             self.button.config(text="Start")
+            self.simulate_button.config(state='normal')  # Disable the button
+            self.batch_entry.config(state='normal')
+            self.thread_entry.config(state='normal')
         else:
             # Starting
             self.running = True
             self.button.config(text="Stop")
+            self.simulate_button.config(state='disabled')  # Disable the button
+            self.batch_entry.config(state='disabled')
+            self.thread_entry.config(state='disabled')
+            self.button.focus() # clear any selection or text fields marker, if exists afte editing them
 
             # Read user inputs
             try:
@@ -162,6 +191,8 @@ class MonteCarloApp:
 
             self.converged = False
             self.convergence_time = None
+            self.aggregated_score = None
+            self.points_per_second = None
             self.consecutive_hits = 0
             self.peak_mem_usage_mb = 0.0
 
@@ -242,7 +273,7 @@ class MonteCarloApp:
     def update_plot(self):
         """ Update the plot and the KPI labels. """
 
-        self.draw_plot()
+        # self.draw_plot() # TOOD: change back
 
         # Estimate Pi
         if self.total_points > 0:
@@ -257,7 +288,7 @@ class MonteCarloApp:
         self.label_error.config(text=f"Absolute Error: {abs_error:.6f}")
 
         # Check convergence (threshold + consecutive hits)
-        if abs_error < self.convergence_threshold:
+        if abs_error < CONVERGENCE_THRESHOLD:
             self.consecutive_hits += 1
         else:
             self.consecutive_hits = 0
@@ -280,12 +311,12 @@ class MonteCarloApp:
         # Update points per second
         actual_elapsed = time.time() - self.start_time
         # print(f"EYALBBBBTIME Elapsed time {actual_elapsed:.2f}")
-        points_per_second = self.total_points / actual_elapsed  # self.batch_size * self.num_threads
-        self.label_points_per_seconds.config(text=f"Points per second: {utils.format_number(points_per_second)}")
+        self.points_per_second = self.total_points / actual_elapsed  # self.batch_size * self.num_threads
+        self.label_points_per_seconds.config(text=f"Points per second: {utils.format_number(self.points_per_second)}")
         # print(f"EYALBBBBTIME points_per_second {utils.format_number(points_per_second)}")
 
         # If we haven't converged yet, but meet the consecutive threshold, we declare convergence
-        if not self.converged and self.consecutive_hits >= self.consecutive_needed:
+        if not self.converged and self.consecutive_hits >= CONSECUTIVE_NEEDED:
             self.converged = True
             self.convergence_time = time.time() - self.start_time
             # We can compute a time-based score
@@ -303,17 +334,76 @@ class MonteCarloApp:
             # 2) Aggregated Score
             # Example formula: aggregated_score = time_to_convergence + (0.01 * peak_mem_usage)
             # or anything else you'd like to factor in
-            aggregated_score = self.convergence_time + 0.01 * self.peak_mem_usage_mb
+            self.aggregated_score = self.convergence_time + 0.01 * self.peak_mem_usage_mb
             # Color logic, for example if aggregated_score < 10, green, else red
-            color_agg = "green" if aggregated_score < 10 else "red"
+            color_agg = "green" if self.aggregated_score < 10 else "red"
             self.label_agg_score.config(
-                text=f"Aggregated Score: {aggregated_score:.2f}",
+                text=f"Aggregated Score: {self.aggregated_score:.2f}",
                 fg=color_agg
             )
 
         if self.convergence_time is None:
             self.label_time_score.config(text="Time-to-Convergence Score: N/A", fg="black")
             self.label_agg_score.config(text="Aggregated Score: N/A", fg="black")
+
+        else:
+            # Running completed
+            self.toggle_simulation()
+
+    def simulate(self):
+        print("Simulate button clicked")
+        """Simulate with multiple configurations to find the optimal parameters."""
+        # Arrays of batch sizes and thread counts to test
+        #batch_sizes = [100, 500, 1000, 5000, 10000, 50000, 100000]
+        batch_sizes = [1000, 10000, 50000, 100000, 500000, 1000000]
+        thread_counts = [1, 2, 4, 8, 12]
+        runs =  3 # Run each configuration multiple times
+
+        self.during_simulation = True
+
+        # Clear previous results
+        # self.simulation_results = []
+        if self.simulation_report is None or not self.simulation_report.winfo_exists():
+            self.simulation_report = tk.Text(self.root, height=10, width=80)
+            self.simulation_report.pack(pady=10)
+            self.simulation_report.delete(1.0, tk.END)
+        else:
+            self.simulation_report.delete(1.0, tk.END)
+
+        #self.simulate_button.config(state='disabled')  # Disable the button
+        # Iterate over batch sizes and thread counts
+        for batch_size in batch_sizes:
+            for num_threads in thread_counts:
+                for _ in range(runs):
+
+
+                    self.batch_entry.delete(0, 'end')  # Clear existing content
+                    self.batch_entry.insert(0, str(batch_size))
+
+                    self.thread_entry.delete(0, 'end')  # Clear existing content
+                    self.thread_entry.insert(0, str(num_threads))
+
+                    self.toggle_simulation()
+
+                    # Wait until simulation is done
+                    #while not self.simulation_done:
+                    while self.running:
+                        self.root.update()  # Keep the GUI responsive
+
+                    if not self.during_simulation:
+                        print("Simulation stopped by user.")
+                        stopped = True
+                        break
+                    else:
+                        # we got here because a run was succesfully ended. insert results
+                        summary = f"Batch: {batch_size}, Threads: {num_threads}, Time: {self.convergence_time:.2f}s, "\
+                                  f"PPS: {utils.format_number(self.points_per_second)}, Score: {self.aggregated_score:.2f}\n"
+                        self.simulation_report.insert(tk.END, summary)
+                        print(summary)
+                if not self.during_simulation:
+                    break
+            if not self.during_simulation:
+                break
 
 if __name__ == "__main__":
     # Ensure psutil is installed: pip install psutil
