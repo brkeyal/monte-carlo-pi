@@ -11,7 +11,15 @@ import psutil
 # Import your Pybind11-compiled C++ module, which supports multi-threading via OpenMP
 import monte_carlo
 
-MAX_POINTS_TO_PLOT = 10000
+MAX_POINTS_TO_PLOT = 1000
+# MAX_PLOT_DURATION = 1/60  # ~0.0167 seconds
+MAX_PLOT_DURATION = 0.1 # seconds
+
+# # Setup
+# plot_widget = pg.PlotWidget()
+# plot_inside = plot_widget.plot([], [], pen=None, symbol='o', symbolBrush='b')
+# plot_outside = plot_widget.plot([], [], pen=None, symbol='o', symbolBrush='r')
+
 
 class MonteCarloApp:
     def __init__(self, root):
@@ -33,8 +41,8 @@ class MonteCarloApp:
         self.start_time = None
 
         # Track points (for plotting)
-        self.points_inside = []
-        self.points_outside = []
+        self.points_inside_to_plot = []
+        self.points_outside_to_plot = []
 
         # ---------------
         # CONVERGENCE / SCORE
@@ -141,17 +149,11 @@ class MonteCarloApp:
             except ValueError:
                 self.num_threads = 2
 
-            # Set environment var (if using environment for OpenMP)
-            os.environ["OMP_NUM_THREADS"] = str(self.num_threads)
-
-            # If you have a function in the C++ module to set threads programmatically, you could do:
-            # monte_carlo.set_num_threads(self.num_threads)
-
             # Reset stats
             self.total_points = 0
             self.inside_circle = 0
-            self.points_inside.clear()
-            self.points_outside.clear()
+            self.points_inside_to_plot.clear()
+            self.points_outside_to_plot.clear()
 
             self.converged = False
             self.convergence_time = None
@@ -173,26 +175,44 @@ class MonteCarloApp:
             # points = monte_carlo.monte_carlo_step_std(num_points=10000, num_threads=4)
             points = monte_carlo.monte_carlo_step_std(self.batch_size, self.num_threads)
 
+            # print(f"EYALBTEST points size = {len(points)}")
+            # print(f"EYALBTEST points_inside size = {len(self.points_inside_to_plot)}")
+            # print(f"EYALBTEST points_outside size = {len(self.points_outside_to_plot)}")
+
             for x, y, inside in points:
                 if inside:
-                    self.points_inside.append((x, y))
-                    if len(self.points_inside) > MAX_POINTS_TO_PLOT:
-                        self.points_inside.pop(0)
-                    self.inside_circle += 1
+                    # if (x, y) not in self.points_inside:
+                        self.points_inside_to_plot.append((x, y))
+                        if len(self.points_inside_to_plot) > MAX_POINTS_TO_PLOT:
+                            self.points_inside_to_plot.pop(0)
+                        self.inside_circle += 1
                 else:
-                    self.points_outside.append((x, y))
-                    if len(self.points_outside) > MAX_POINTS_TO_PLOT:
-                        self.points_outside.pop(0)
+                    # if (x, y) not in self.points_outside:
+                        self.points_outside_to_plot.append((x, y))
+                        if len(self.points_outside_to_plot) > MAX_POINTS_TO_PLOT:
+                            self.points_outside_to_plot.pop(0)
                 self.total_points += 1
+
+            # Before plotting
+            start_time = time.time()
 
             # Update the UI (plots + KPIs)
             self.update_plot()
 
+            # After plotting
+            end_time = time.time()
+            plot_duration = end_time - start_time
+            # print(f"Plotting took {plot_duration:.4f} seconds")
+
+            if plot_duration > MAX_PLOT_DURATION:
+                print(f"Warning: Plotting took {plot_duration:.4f} seconds, which exceeds max threshold.")
+                # Optionally, raise exception
+
             # Optional short sleep if you want to limit CPU usage or UI updates
             # time.sleep(0.01)
 
-    def update_plot(self):
-        """ Update the plot and the KPI labels. """
+    def draw_plot(self):
+        # Clear the old plot
         # Clear the old plot
         self.ax.clear()
         self.ax.set_xlim(-1, 1)
@@ -200,17 +220,25 @@ class MonteCarloApp:
         self.ax.set_aspect("equal")
 
         # Plot points
-        if self.points_inside:
-            x_in, y_in = zip(*self.points_inside)
+        if self.points_inside_to_plot:
+            x_in, y_in = zip(*self.points_inside_to_plot)
         else:
             x_in, y_in = [], []
-        if self.points_outside:
-            x_out, y_out = zip(*self.points_outside)
+        if self.points_outside_to_plot:
+            x_out, y_out = zip(*self.points_outside_to_plot)
         else:
             x_out, y_out = [], []
 
         self.ax.scatter(x_in, y_in, color="blue", s=1, label="Inside Circle")
         self.ax.scatter(x_out, y_out, color="red", s=1, label="Outside Circle")
+
+        # Redraw the canvas
+        self.canvas.draw()
+
+    def update_plot(self):
+        """ Update the plot and the KPI labels. """
+
+        self.draw_plot()
 
         # Estimate Pi
         if self.total_points > 0:
@@ -275,9 +303,6 @@ class MonteCarloApp:
         if self.convergence_time is None:
             self.label_time_score.config(text="Time-to-Convergence Score: N/A", fg="black")
             self.label_agg_score.config(text="Aggregated Score: N/A", fg="black")
-
-        # Redraw the canvas
-        self.canvas.draw()
 
 if __name__ == "__main__":
     # Ensure psutil is installed: pip install psutil
