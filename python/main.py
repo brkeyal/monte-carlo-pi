@@ -276,7 +276,7 @@ class MonteCarloApp:
     def update_plot(self):
         """ Update the plot and the KPI labels. """
 
-        # self.draw_plot() # TOOD: change back
+        self.draw_plot()
 
         # Estimate Pi
         if self.total_points > 0:
