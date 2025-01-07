@@ -23,8 +23,19 @@ This project demonstrates a Monte Carlo approach to estimating π by randomly sa
 
 4. Continuous Integration
    - GitHub Actions workflow to:
-     - Build the Pybind11 extension in-place
-     - Run tests automatically on commits and pull requests
+   - Build the Pybind11 extension in-place
+   - Run tests automatically on commits and pull requests
+
+5. Further Improvements TODO:
+   - Improve performance metrics (cpu usage, total memory, etc) and calculate relevant score (normalized)
+   - Further optimization in C++ code
+      - optimize threads handling / threads pool
+      - move creation of random engines outside of loop
+   - Improve/enhance the python gui rendering
+   - Some tech debts/best practices - avoid global params / refactor to class / clear vector on termination, etc
+   - Add more testing
+
+  
 
 ## Project Structure
 ```
@@ -53,34 +64,38 @@ monte-carlo-pi/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/monte-carlo-pi.git
+git clone https://github.com/brkeyal/monte-carlo-pi.git
 cd monte-carlo-pi
 ```
-
-### 2. Build the C++ Extension
-```bash
-python setup.py build_ext --inplace
-```
-
-### 3. Install Dependencies
+### 2. Install Requirements
 ```bash
 pip install -r requirements.txt
+
+# If that doesn't work, try:
+pip3 install -r requirements.txt
+
+# If that doesn't work, try:
+python -m pip install -r requirements.txt
 ```
 
-Required packages:
-- pybind11 (C++ bindings)
-- pytest (testing)
-- matplotlib (plotting)
-- psutil (memory monitoring)
-- tkinter (GUI - usually included with Python)
-
-### 4. Run the GUI
+### 3. Build the C++ Extension
 ```bash
-python main.py
+python src/setup.py build_ext --inplace
+```
+
+### 4. Set Python path to include the source directory:
+```bash
+export PYTHONPATH=$PYTHONPATH:$(pwd)  # On Windows, use: set PYTHONPATH=%PYTHONPATH%;%cd%
+```
+
+### 5. Run the GUI
+```bash
+python python/main.py
 ```
 
 The GUI provides:
-- Start/Stop simulation controls
+- Start/Stop controllers
+- Simluator controller
 - Batch Size adjustment
 - Thread Count selection
 - Real-time visualization
