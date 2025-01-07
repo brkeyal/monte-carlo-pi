@@ -12,8 +12,8 @@ This project demonstrates a Monte Carlo approach to estimating π by randomly sa
 2. Python Tkinter GUI
    - Batch size and thread count can be set by the user
    - Real-time plotting via matplotlib, showing inside/outside points
-   - Performance KPIs: time elapsed, memory usage (current & peak), convergence checks (±10^-4 threshold), and an aggregated score once convergence is reached
-   - The algorithm until reaching a precision threshold, defined in the code, requiring convergence to be achieved in multiple consecutive runs before presenting the final results.
+   - The algorithm runs until reaching a precision threshold, defined in the code, requiring convergence to be achieved in multiple consecutive runs before presenting the final results
+   - Performance KPIs: time elapsed, memory usage (current & peak), points per second, and an aggregated score once convergence is reached
    - Simulation mode for optimizing batch size and thread count values
 
 3. Automated Tests
@@ -32,7 +32,7 @@ This project demonstrates a Monte Carlo approach to estimating π by randomly sa
       - optimize threads handling / threads pool
       - move creation of random engines outside of loop
    - Improve/enhance the python gui rendering
-   - Some tech debts/best practices - avoid global params / refactor to class / clear vector on termination, etc
+   - Some tech debts/best practices - avoid global params / refactor to class / clear vector on termination / input validations / etc
    - Add more testing
 
   
