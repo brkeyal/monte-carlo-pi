@@ -29,10 +29,10 @@ This project demonstrates a Monte Carlo approach to estimating π by randomly sa
 5. Further Improvements TODO:
    - Improve performance metrics (cpu usage, total memory, etc) and calculate relevant score (normalized)
    - Further optimization in C++ code
-      - optimize threads handling
-      - creation of random engines outside of loop
+      - optimize threads handling / threads pool
+      - move creation of random engines outside of loop
    - Improve/enhance the python gui rendering
-   - Some tech debts - clear global threads vector on destruction / refactor to class, etc
+   - Some tech debts/best practices - avoid global params / refactor to class / clear vector on termination, etc
    - Add more testing
 
   
