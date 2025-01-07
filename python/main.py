@@ -205,6 +205,9 @@ class MonteCarloApp:
             threading.Thread(target=self.run_simulation, daemon=True).start()
 
     def run_simulation(self):
+
+        monte_carlo.set_threads(self.num_threads)
+
         """ Continuously run simulation while self.running is True. """
         while self.running:
             # Generate a batch of random points from C++
