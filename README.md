@@ -85,7 +85,8 @@ python src/setup.py build_ext --inplace
 
 ### 4. Set Python path to include the source directory:
 ```bash
-export PYTHONPATH=$PYTHONPATH:$(pwd)  # On Windows, use: set PYTHONPATH=%PYTHONPATH%;%cd%
+export PYTHONPATH=$PYTHONPATH:$(pwd)
+# On Windows, use: set PYTHONPATH=%PYTHONPATH%;%cd%
 ```
 
 ### 5. Run the GUI
