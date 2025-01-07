@@ -65,7 +65,7 @@ monte-carlo-pi/
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/brkeyal/monte-carlo-pi.git
-cd <YOUR_LIB>/monte-carlo-pi
+cd monte-carlo-pi
 ```
 ### 2. Install Requirements
 ```bash
