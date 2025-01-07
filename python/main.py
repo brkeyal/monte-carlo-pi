@@ -89,7 +89,7 @@ class MonteCarloApp:
         control_frame.pack(pady=5)
 
         # Simulate Button
-        self.simulate_button = tk.Button(control_frame, text="Simulation", command=self.simulate)
+        self.simulate_button = tk.Button(control_frame, text="Simulator", command=self.simulate)
         self.simulate_button.pack(side=tk.BOTTOM, padx=5)
 
         # Start/Stop Button
@@ -354,6 +354,7 @@ class MonteCarloApp:
             self.toggle_simulation()
 
     def simulate(self):
+        global CONVERGENCE_THRESHOLD
         print("Simulate button clicked")
         """Simulate with multiple configurations to find the optimal parameters."""
         # Arrays of batch sizes and thread counts to test
@@ -372,6 +373,17 @@ class MonteCarloApp:
             self.simulation_report.delete(1.0, tk.END)
         else:
             self.simulation_report.delete(1.0, tk.END)
+
+        # log info to simulator
+        self.simulation_report.insert(tk.END, "starting simulation\n")
+        batch_sizes_str = ", ".join(map(str, batch_sizes))
+        self.simulation_report.insert(tk.END, f"batch_sizes array: [{batch_sizes_str}]\n")
+        thread_counts_str = ", ".join(map(str, thread_counts))
+        self.simulation_report.insert(tk.END, f"thread_counts array: [{thread_counts_str}]\n")
+        self.simulation_report.insert(tk.END, f"runs per configuration: {runs}\n")
+        self.simulation_report.insert(tk.END, f"precision goal: {CONVERGENCE_THRESHOLD}; consecutive hits: {CONSECUTIVE_NEEDED} \n")
+        self.simulation_report.insert(tk.END, f"running...\n")
+
 
         #self.simulate_button.config(state='disabled')  # Disable the button
         # Iterate over batch sizes and thread counts
