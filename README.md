@@ -104,6 +104,8 @@ The GUI provides:
 
 ### 5. Run Tests
 ```bash
+# NOTE: Currently, there's a missing step to run it from the terminal. Pytest requires additional dependencies and linkage to the monte_carlo C++ build. This needs to be fixed.
+# In the meantime, it can be run from PyCharm and also runs automatically as part of every commit/PR in GitHub.
 pytest tests/
 ```
 
