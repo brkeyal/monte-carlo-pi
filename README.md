@@ -70,7 +70,7 @@ cd monte-carlo-pi
 
 ### 2. Build the C++ Extension
 ```bash
-python setup.py build_ext --inplace
+python src/setup.py build_ext --inplace
 ```
 Required packages:
 - setuptools
