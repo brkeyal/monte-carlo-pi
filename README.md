@@ -70,6 +70,12 @@ cd monte-carlo-pi
 ### 2. Install Requirements
 ```bash
 pip install -r requirements.txt
+
+# If that doesn't work, try:
+pip3 install -r requirements.txt
+
+# If that doesn't work, try:
+python -m pip install -r requirements.txt
 ```
 
 ### 3. Build the C++ Extension
