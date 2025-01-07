@@ -19,14 +19,13 @@ This project demonstrates a Monte Carlo approach to estimating π by randomly sa
    - Pytest tests to verify:
      - C++ module calls and returned data
      - Python logic for setting and parsing batch size / thread count
-     - Optional GUI tests
 
 4. Continuous Integration
    - GitHub Actions workflow to:
    - Build the Pybind11 extension in-place
    - Run tests automatically on commits and pull requests
 
-5. Further Improvements TODO:
+5.** Further Improvements TODO:**
    - Improve performance metrics (cpu usage, total memory, etc) and calculate relevant score (normalized)
    - Further optimization in C++ code
       - optimize threads handling / threads pool
@@ -42,22 +41,21 @@ This project demonstrates a Monte Carlo approach to estimating π by randomly sa
 monte-carlo-pi/
 │
 ├── src/
-│   ├── monte_carlo.cpp     # Main C++ file with Monte Carlo + threading logic
+│   ├── monte_carlo.cpp    # Main C++ file with Monte Carlo + threading logic
 │   └── setup.py           # Pybind11 build script
 │
 ├── python/
 │   ├── main.py            # Python Tkinter GUI + logic
-│   └── utils/             # Helper functions and utilities
+│   └── utils.py           # Helper functions and utilities
 │
 ├── tests/
-│   ├── test_monte_carlo.py
-│   └── test_gui.py
+│   └── test_monte_carlo.py
 │
 ├── requirements.txt       # Python dependencies
 ├── README.md
 └── .github/
     └── workflows/
-        └── ci.yml        # GitHub Actions workflow
+        └── ci.yml         # GitHub Actions workflow
 ```
 
 ## Getting Started
@@ -111,11 +109,27 @@ pytest tests/
 
 ## Development with PyCharm
 
-1. Open project in PyCharm
-2. Enable Version Control: VCS > Enable Version Control Integration
-3. Build the extension: Run `python setup.py build_ext --inplace` in terminal
-4. Run the GUI: Execute `main.py`
-5. Run tests: Configure Python tests in PyCharm
+1. **Open the Project**
+Open the project in PyCharm.
+
+2. **Enable Version Control**
+Navigate to VCS > Enable Version Control Integration to enable version control.
+
+3. **Install Dependencies**
+Install the required dependencies as outlined above, or let the IDE handle missing packages. PyCharm highlights missing dependencies in red and provides an option to install them directly (e.g., setuptools).
+
+4. **Build the C++ Extension**
+   - **Option 1:** Run python setup.py build_ext --inplace from the terminal.
+   - **Option 2:** Execute setup.py within PyCharm:
+      - Right-click on setup.py and select **Run**.
+      - Open **Edit Configuration** and add build_ext --inplace under **Script Parameters**.
+      - Thill build the C++ extension.
+
+5. **Run the GUI**
+Execute main.py to launch the application.
+
+6. **Run Tests**
+Configure Python tests in PyCharm and execute them from the IDE. Ensure the monte_carlo extension is built and accessible to the test environment.
 
 ## Contributing
 
