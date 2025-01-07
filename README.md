@@ -23,8 +23,17 @@ This project demonstrates a Monte Carlo approach to estimating π by randomly sa
 
 4. Continuous Integration
    - GitHub Actions workflow to:
-     - Build the Pybind11 extension in-place
-     - Run tests automatically on commits and pull requests
+   - Build the Pybind11 extension in-place
+   - Run tests automatically on commits and pull requests
+
+5. Further Improvements TODO:
+   - Improve performance metrics (cpu usage, total memory, etc) and calculate relevant score (normalized)
+   - Further optimization in C++ code - creation of random engines outside of loop
+   - Improve/enhance the python gui rendering
+   - Some tech debts - clear global threads vector on destruction / refactor to class, etc
+   - Add more testing
+
+  
 
 ## Project Structure
 ```
