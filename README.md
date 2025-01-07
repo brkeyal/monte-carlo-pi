@@ -72,13 +72,8 @@ cd monte-carlo-pi
 ```bash
 python setup.py build_ext --inplace
 ```
-
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
 Required packages:
+- setuptools
 - pybind11 (C++ bindings)
 - pytest (testing)
 - matplotlib (plotting)
