@@ -82,7 +82,7 @@ Required packages:
 
 ### 4. Run the GUI
 ```bash
-python main.py
+python python/main.py
 ```
 
 The GUI provides:
