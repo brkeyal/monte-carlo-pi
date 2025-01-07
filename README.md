@@ -13,6 +13,7 @@ This project demonstrates a Monte Carlo approach to estimating π by randomly sa
    - Batch size and thread count can be set by the user
    - Real-time plotting via matplotlib, showing inside/outside points
    - Performance KPIs: time elapsed, memory usage (current & peak), convergence checks (±10^-4 threshold), and an aggregated score once convergence is reached
+   - The algorithm until reaching a precision threshold, defined in the code, requiring convergence to be achieved in multiple consecutive runs before presenting the final results.
    - Simulation mode for optimizing batch size and thread count values
 
 3. Automated Tests
