@@ -65,8 +65,8 @@ std::vector<std::tuple<double, double, bool>> monte_carlo_step_std(int num_point
     int remainder = num_points % num_threads;
 
     int start = 0;
-    for (int t = 0; t < num_threads; ++t) {
-        int this_chunk = chunk_size + (t < remainder ? 1 : 0);
+    for (size_t t = 0; t < num_threads; ++t) {
+        int this_chunk = chunk_size + (t < static_cast<size_t>(remainder) ? 1 : 0);
         int end = start + this_chunk;
 
         if (t >= g_threads.size()) {
