@@ -64,29 +64,32 @@ monte-carlo-pi/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/monte-carlo-pi.git
-cd monte-carlo-pi
+git clone https://github.com/brkeyal/monte-carlo-pi.git
+cd <YOUR_LIB>/monte-carlo-pi
+```
+### 2. Install Requirements
+```bash
+pip install -r requirements.txt
 ```
 
-### 2. Build the C++ Extension
+### 3. Build the C++ Extension
 ```bash
 python src/setup.py build_ext --inplace
 ```
-Required packages:
-- setuptools
-- pybind11 (C++ bindings)
-- pytest (testing)
-- matplotlib (plotting)
-- psutil (memory monitoring)
-- tkinter (GUI - usually included with Python)
 
-### 4. Run the GUI
+### 4. Set Python path to include the source directory:
+```bash
+export PYTHONPATH=$PYTHONPATH:$(pwd)  # On Windows, use: set PYTHONPATH=%PYTHONPATH%;%cd%
+```
+
+### 5. Run the GUI
 ```bash
 python python/main.py
 ```
 
 The GUI provides:
-- Start/Stop simulation controls
+- Start/Stop controllers
+- Simluator controller
 - Batch Size adjustment
 - Thread Count selection
 - Real-time visualization
